@@ -1,168 +1,187 @@
 ---
-title: API Reference
+title: Adamo API Reference
 
 language_tabs:
   - shell
-  - ruby
-  - python
+  - http
 
 toc_footers:
   - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='http://github.com/tripit/slate'>Documentation Powered by Slate</a>
 
 includes:
+  - contacts
+  - products
+  - invoices
+  - arrivals
+  - arrangements
+  - payments
+  - emails
+  - uploads
+  - reports  
   - errors
 
 search: true
 ---
 
-# Introduction
+# Introduzione
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Benvenuto nella documentazione di Adamo API! Puoi usare le API di Adamo per accedere ai diversi endpoints, dove potrai creare, modificare e ottenere informazioni sui diversi oggetti memorizzati dentro Adamo.
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+Le risorse in questa guida ti permetteranno di sviluppare velocemente la tua applicazione.
 
-This example API documentation page was created with [Slate](http://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+Le API di Adamo sono organizzate intorno a <a href="http://it.wikipedia.org/wiki/Representational_State_Transfer">REST</a>. Le API sono disegnate per essere intuitive, con URL orientati alle risorse e con i codici HTTP utilizzati per indicare eventuali errori. 
 
-# Authentication
+Tutte le richieste devono essere passate per HTTPS.
 
-> To authorize, use this code:
+Le richieste e le risposte utilizzano JSON per formattare le risorse, inclusi gli errori.
 
-```ruby
-require 'kittn'
+Per qualsiasi dubbio puoi scrivere a <a href="mailto:info@adamogestionale.it">info@adamogestionale.it</a>.
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
+## Registra la tua app
 
-```python
-import kittn
+# Autenticazione
 
-api = kittn.authorize('meowmeowmeow')
-```
+Le API di Adamo supportano il protocollo OAuth 2.0 per autorizzare applicazioni di terze parte a connettersi all'account di un utente senza utilizzare username e password.
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+Come sviluppatore devi registrare la tua applicazione su Adamo prima di usare il flusso OAuth.
 
-> Make sure to replace `meowmeowmeow` with your API key.
+Seguendo i passi qui sotto puoi ottenere un *access_token* per la tua web app usando OAuth 2.0. Un access token permette alla tua app di compiere delle richieste per l'utente.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+Si consiglia di visionare il protocollo <a href="http://oauth.net/2/">OAuth 2.0</a> per altre informazioni.
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
 
-`Authorization: meowmeowmeow`
+## Ottieni un Authorization Code
 
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
+Dalla tua web app, reindirizza l'utente di cui vorresti l'accesso al link:
 
-# Kittens
+`GET https://app.adamogestionale.it/oauth/authorize?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}`
 
-## Get All Kittens
+Parameter | Description
+--------- |  -----------
+client_id | il client ID ricevuto quando hai registrato la tua app su Adamo.
+response_type | Il tipo di risposta. Per un flusso web, utilizzare *code*.
+redirect_uri | La URL url-encoded a cui sarà reindirizzato l'utente dopo aver accettato di fornire alla tua app l'autorizzazione a procedere.
 
-```ruby
-require 'kittn'
+### Response
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
+L'utente vedrà una schermata di autorizzazione. 
 
-```python
-import kittn
+Accettando, darà alla tua app l'autorizzazione a accedere agli endpoint per conto suo.
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+Se rifiuta, l'utente verrà reindirizzato al tuo sito con un codice d'errore.
 
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
+## Adamo reindrizza l'utente al tuo sito
 
-> The above command returns JSON structured like this:
+Se l'utente accetta la richiesta, viene reindirizzato al tuo sito con un codice `code` nella querystring.
 
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Isis",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
+`https://{redirect_uri}/?code={auth_code}`
 
-This endpoint retrieves all kittens.
+Questo codice ha una validità di 30 secondi, dopodiché non potrà più essere utilizzato.
 
-### HTTP Request
+## Scambia l'Auth code con un Access Token
 
-`GET http://example.com/kittens`
+Dopo aver ricevuto il `code` dovrai scambiarlo con il server per ottenere un `access_token`. 
 
-### Query Parameters
+Fai una richiesta all'indirizzo:
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+`GET https://app.adamogestionale.it/oauth/token?grant_type=authorization_code&code={auth_code}&client_id={client_id}&client_secret={client_secret}`
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
+Parameter | Description
+--------- |  -----------
+client_id | il client ID ricevuto quando hai registrato la tua app su Adamo.
+auth_code |L'auth code ricevuto.
+client_secret | il client_secret ricevuto quando hai registrato la tua app su Adamo.
 
-## Get a Specific Kitten
 
-```ruby
-require 'kittn'
+### Restituisce
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/3"
-  -H "Authorization: meowmeowmeow"
-```
-
-> The above command returns JSON structured like this:
+> Risposta:
 
 ```json
-{
-  "id": 2,
-  "name": "Isis",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+{ 
+	"access_token": "{access_token}",
+	"expires_in": 31104000,
+	"token_type": "bearer",
+	"refresh_token": "{refresh_token}"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+La risposta include una stringa JSON che contiene l'access_token
 
-<aside class="warning">If you're not using an administrator API key, note that some kittens will return 403 Forbidden if they are hidden for admins only.</aside>
+`{"access_token": "{access_token}"}`
 
-### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+Devi salvare l'*access_token* fornito per qualsiasi compiere qualsiasi richiesta per l'utente.
 
-### URL Parameters
+Il parametro *expire_in*, restituito con la richiesta indica per quanto tempo (in secondi) sarà valido quel token. Il token ha una durata di un anno.
 
-Parameter | Description
---------- | -----------
-ID | The ID of the cat to retrieve
+
+## Utilizza l'Access Token
+
+Il Token deve essere incluso in ogni richiesta API. Questo può essere fatto in query string:
+
+`curl https://app.adamogestionale.it/api/invoices?access_token={access_token}`
+
+Oppure come HTTP Header:
+
+`curl	-H "Authorization: Bearer {access_token}"`
+
+# Api
+
+## Endpoint
+
+Quando si ha un *access_token* si può interagire con le API di Adamo per conto dell'utente che ha concesso l'autorizzazione e a cui è associato quel *access_token*.
+
+Gli endpoint, cioè gli indirizzi, a cui puoi collegarti sono elencati in questo documento. Tutte le richieste devono venire fatte via JSON attraverso HTTPS.
+
+## Schema
+
+> Richiesta di Esempio:
+
+```http
+POST /api/invoices/?expand=Income,IncomeDue&access_token={access_token} HTTP/1.1
+Host: app.adamogestionale.it
+Content-Type: application/json
+```
+
+```shell
+$ curl 
+http://app.adamogestionale.it/api/invoices/?expand=Income,IncomeDue
+	-X POST
+	-H "Authorization: Bearer {access_token}"
+	-H "Content-Type: application/json"
+```
+
+> Risposta di esempio:
+
+```json
+{
+    "id": {
+        "type": "integer",
+        "null": false,
+        "default": null,
+        "length": 10,
+        "key": "primary"
+    },
+    "name": {
+        "type": "string",
+        "null": true,
+        "default": null,
+        "length": 100,
+        "collate": "latin1_swedish_ci",
+        "charset": "latin1"
+    },
+    {...}
+}
+```
+
+Con il termine Oggetti intendiamo un gruppo di informazioni. Ad esempio una fattura o un contatto sono considerati oggetti.
+
+Tutti gli oggetto su Adamo hanno una propria struttura, chiamata *schema*.
+
+Per conoscere lo schema di un determinato oggetto è possibile fare una richiesta
+
+`GET https://app.adamogestionale.it/api/{object}/schema`
+
+In questo modo verrà restituito un oggetto che elenca tutti gli attributi e il loro tipo.
 
