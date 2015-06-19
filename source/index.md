@@ -6,7 +6,7 @@ language_tabs:
   - http
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
+  - <a href='//app.adamogestionale.it/domains/preferences#tab_developer' target='_blank'> Ottieni credenziali API </a>
 
 includes:
   - contacts
@@ -38,6 +38,12 @@ Le richieste e le risposte utilizzano JSON per formattare le risorse, inclusi gl
 Per qualsiasi dubbio puoi scrivere a <a href="mailto:info@adamogestionale.it">info@adamogestionale.it</a>.
 
 ## Registra la tua app
+
+Registrati su Adamo come un normale utente. Nelle impostazioni vai su *Organizzazione* e scegli la scheda *Sviluppatori*.
+
+Qui potrai registrare diverse applicazioni, ognuna con un proprio *name*, *description* e *redirect_uri*. Una volta registrata, ti verranno fornite le credenziali *client_id*, *client_secret* della tua app.
+
+**Attento!** Il tuo *client_secret* ti viene mostrato solo in quest'occasione. Assicurati di conservare con cura il tuo *client_secret* perché non potrà essere recuperato in alcun modo. Se lo perdi dovrai necessariamente generarne uno nuovo.
 
 # Autenticazione
 
@@ -184,4 +190,28 @@ Per conoscere lo schema di un determinato oggetto è possibile fare una richiest
 `GET https://app.adamogestionale.it/api/{object}/schema`
 
 In questo modo verrà restituito un oggetto che elenca tutti gli attributi e il loro tipo.
+
+## Rate Limit
+
+> Errore di esempio:
+
+```json
+{
+    "name": "rate limit exceeded",
+    "url": "\/api\/invoices?access_token={token}"
+}
+```
+
+Esiste un limite di utilizzo delle API di Adamo. Questo limite è applicato a tutte le chiamate fatte in una finestra di **15 minuti**, indipendentemente dall'endpoint richiesto. 
+
+Il limite è sugli **Access Token**. Questo significa che non puoi fare più di un certo numero di chiamate per ogni access token (quindi per ogni utente) di cui sei dotato. 
+
+Type  | Rate Limit
+--- | ---
+Access Token | 1.000 Richieste / 15 Minuti
+
+Ad ogni chiamata vengono calcolate le richieste fatte con lo stesso *access_token* negli ultimi 15 minuti. Se il limite è stato superato ti verrà restituito un [Errore](#Error), con *status code* pari a 403.
+
+
+
 
