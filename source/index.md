@@ -29,7 +29,7 @@ Benvenuto nella documentazione di Adamo API! Puoi usare le API di Adamo per acce
 
 Le risorse in questa guida ti permetteranno di sviluppare velocemente la tua applicazione.
 
-Le API di Adamo sono organizzate intorno a <a href="http://it.wikipedia.org/wiki/Representational_State_Transfer">REST</a>. Le API sono disegnate per essere intuitive, con URL orientati alle risorse e con i codici HTTP utilizzati per indicare eventuali errori. 
+Le API di Adamo sono organizzate intorno a <a href="http://it.wikipedia.org/wiki/Representational_State_Transfer">REST</a>. Le API sono disegnate per essere intuitive, con URL orientati alle risorse e con i codici HTTP utilizzati per indicare eventuali errori.
 
 Tutte le richieste devono essere passate per HTTPS.
 
@@ -70,23 +70,26 @@ redirect_uri | La URL url-encoded a cui sarà reindirizzato l'utente dopo aver a
 
 ### Response
 
-L'utente vedrà una schermata di autorizzazione. 
+L'utente vedrà una schermata di autorizzazione in cui gli si chiederà conferma di voler accettare che la tua applicazione acceda ai suoi dati.
 
 Accettando, darà alla tua app l'autorizzazione a accedere agli endpoint per conto suo.
 
-Se rifiuta, l'utente verrà reindirizzato al tuo sito con un codice d'errore.
 
 ## Adamo reindrizza l'utente al tuo sito
 
-Se l'utente accetta la richiesta, viene reindirizzato al tuo sito con un codice `code` nella querystring.
+Se l'utente **accetta** la richiesta, viene reindirizzato al tuo sito con un codice `code` nella querystring.
 
 `https://{redirect_uri}/?code={auth_code}`
 
 Questo codice ha una validità di 30 secondi, dopodiché non potrà più essere utilizzato.
 
+Se l'utente rifiuta di concedere l'autorizzazione, l'utente verrà reindirizzato al tuo sito con un codice d'errore.
+
+`https://{redirect_uri}/?error=access_denied&error_description=The+user+denied+access+to+your+application`
+
 ## Scambia l'Auth code con un Access Token
 
-Dopo aver ricevuto il `code` dovrai scambiarlo con il server per ottenere un `access_token`. 
+Dopo aver ricevuto il `code` dovrai scambiarlo con il server per ottenere un `access_token`.
 
 Fai una richiesta all'indirizzo:
 
@@ -104,7 +107,7 @@ client_secret | il client_secret ricevuto quando hai registrato la tua app su Ad
 > Risposta:
 
 ```json
-{ 
+{
 	"access_token": "{access_token}",
 	"expires_in": 31104000,
 	"token_type": "bearer",
@@ -151,8 +154,8 @@ Content-Type: application/json
 ```
 
 ```shell
-$ curl 
-http://app.adamogestionale.it/api/invoices/?expand=Income,IncomeDue
+$ curl
+https://app.adamogestionale.it/api/invoices/?expand=Income,IncomeDue
 	-X POST
 	-H "Authorization: Bearer {access_token}"
 	-H "Content-Type: application/json"
@@ -202,16 +205,12 @@ In questo modo verrà restituito un oggetto che elenca tutti gli attributi e il 
 }
 ```
 
-Esiste un limite di utilizzo delle API di Adamo. Questo limite è applicato a tutte le chiamate fatte in una finestra di **15 minuti**, indipendentemente dall'endpoint richiesto. 
+Esiste un limite di utilizzo delle API di Adamo. Questo limite è applicato a tutte le chiamate fatte in una finestra di **15 minuti**, indipendentemente dall'endpoint richiesto.
 
-Il limite è sugli **Access Token**. Questo significa che non puoi fare più di un certo numero di chiamate per ogni access token (quindi per ogni utente) di cui sei dotato. 
+Il limite è sugli **Access Token**. Questo significa che non puoi fare più di un certo numero di chiamate per ogni access token (quindi per ogni utente) di cui sei dotato.
 
 Type  | Rate Limit
 --- | ---
 Access Token | 1.000 Richieste / 15 Minuti
 
 Ad ogni chiamata vengono calcolate le richieste fatte con lo stesso *access_token* negli ultimi 15 minuti. Se il limite è stato superato ti verrà restituito un [Errore](#Error), con *status code* pari a 403.
-
-
-
-
