@@ -79,10 +79,16 @@ number | String | Identificativo (progressivo) della fattura
 date | Date | Data della fattura
 customer_id | Integer | Identificativo del cliente  (tra i Contatti)
 customer_name | String | Nome del cliente
-customer_address | String | Indirizzo del cliente
+customer_street | String | Via, Indirizzo del cliente
+customer_city | String | Città, Indirizzo del cliente
+customer_province | String | Provincia, indirizzo del cliente, in [sigla a due caratteri](http://www.aci.it/i-servizi/normative/codice-della-strada/elenco-sigle-province-ditalia.html)
+customer_zip | String | CAP, indirizzo del cliente
+customer_country | String | Stato, indirizzo del cliente [in formato Alpha2](https://it.wikipedia.org/wiki/ISO_3166-1_alpha-2)
 customer_address_shipment | String | Indirizzo di spedizione del cliente
 customer_fiscal | String | Codice Fiscale del cliente
 customer_vat_number| String | Partita IVA del cliente
+customer_pec | String | Indirizzo di posta PEC del cliente
+customer_fe_code | String | Codice Destinatario (per Fatturazione Elettronica) del cliente
 payment_method | String | Metodo di pagamento
 payment_dues | String | Scadenze di pagamento
 payment_notes | String | Note di Pagamento
@@ -268,10 +274,18 @@ http://app.adamogestionale.it/api/invoices/?expand=Income,IncomeDue
         "number": "21",
         "date": "2015-06-02",
         "customer_name": "Mario Rossi",
-        "customer_address": "Via di Prova\r\n  Roma  \r\n ",
+        "customer_street": "Via di Prova 1",
+        "customer_city": "Roma",
+        "customer_province": "RM",
+        "customer_zip": "10100",
+        "customer_country": "IT",
         "customer_address_shipment": "",
-        "customer_fiscal": null,
+        "customer_fiscal": "RXMR912AS912D",
         "customer_vat_number": null,
+        "customer_phone": "333111111",
+        "customer_email": "cliente@email.it",
+        "customer_pec": "cliente@pec.it",
+        "customer_fe_code": "1234567",
         "payment_method": null,
         "payment_dues": null,
         "payment_notes": null,
@@ -431,10 +445,19 @@ http://app.adamogestionale.it/api/invoices/{id}?expand=Income,IncomeDue
 			"date": "2015-05-15",
 			"customer_id": 714,
 			"customer_name": "Mario Rossi",
-			"customer_address": "Via Roma, Torino",
-			"customer_address_shipment": "",
-			"customer_fiscal": "RSSMR",
-			"customer_vat_number": "",
+        "customer_address": "Via di Prova\r\n  Roma  \r\n ",
+        "customer_street": "Via di Prova 1",
+        "customer_city": "Roma",
+        "customer_province": "RM",
+        "customer_zip": "10100",
+        "customer_country": "IT",
+        "customer_address_shipment": "",
+        "customer_fiscal": "RXMR912AS912D",
+        "customer_vat_number": null,
+        "customer_phone": "333111111",
+        "customer_email": "cliente@email.it",
+        "customer_pec": "cliente@pec.it",
+        "customer_fe_code": "1234567",
 			"payment_method": "",
 			"payment_dues": "pers",
 			"payment_notes": "",
@@ -594,9 +617,18 @@ http://app.adamogestionale.it/api/invoices/{id}?expand=Income,IncomeDue
         "date": "2015-04-01",
         "customer_name": "Mario Rossi",
         "customer_address": "Via di Prova\r\n  Roma  \r\n ",
+        "customer_street": "Via di Prova 1",
+        "customer_city": "Roma",
+        "customer_province": "RM",
+        "customer_zip": "10100",
+        "customer_country": "IT",
         "customer_address_shipment": "",
         "customer_fiscal": "RXMR912AS912D",
         "customer_vat_number": null,
+        "customer_phone": "333111111",
+        "customer_email": "cliente@email.it",
+        "customer_pec": "cliente@pec.it",
+        "customer_fe_code": "1234567",
         "payment_method": null,
         "payment_dues": null,
         "payment_notes": null,
@@ -776,6 +808,31 @@ http://app.adamogestionale.it/api/invoices/{id}.pdf
 E' possibile visualizzare la versione PDF di una fattura.
 
 Fornire l'ID della che è stato consegnato da una richiesta precedente, inserendo l'estensione `.pdf` alla richiesta.
+
+## Visualizza XML di una fattura
+
+> Richiesta di esempio:
+
+```http
+GET /api/invoices/{id}.xml?access_token={access_token} HTTP/1.1
+Host: app.adamogestionale.it
+Content-Type: application/json
+```
+
+```shell
+$ curl 
+http://app.adamogestionale.it/api/invoices/{id}.xml
+	-X GET
+	-H "Authorization: Bearer {access_token}"
+	-H "Content-Type: application/json"
+```
+
+
+E' possibile visualizzare la versione XML di una fattura.
+
+Fornire l'ID della che è stato consegnato da una richiesta precedente, inserendo l'estensione `.xml` alla richiesta.
+
+La versione XML della fattura è aderente al [formato tabellare 1.2.1](https://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2.1/Rappresentazione_tabellare_del_tracciato_FatturaPA_versione_1.2.1.pdf) dell'agenzia delle Entrate per la fattura PA.
 
 ### HTTP Request
 
